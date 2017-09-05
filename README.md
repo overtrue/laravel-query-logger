@@ -12,7 +12,7 @@ $ composer require overtrue/laravel-query-logger --dev -vvv
 
 ## Usage
 
-```php
+```shell
 $ tail -f ./storage/logs/laravel.log 
 ```
 
