@@ -1,0 +1,25 @@
+{
+    "name": "overtrue/laravel-query-logger",
+    "description": "A dev tool to log all queries for laravel application.",
+    "type": "library",
+    "require": {
+        "laravel/framework": "5.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Overtrue\\LaravelQueryLogger\\": "src"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "overtrue",
+            "email": "anzhengchao@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": ["Overtrue\\LaravelQueryLogger\\ServiceProvider"]
+        }
+    }
+}
