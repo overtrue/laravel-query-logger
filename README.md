@@ -1,6 +1,6 @@
 <h1 align="center"> Laravel Query Logger </h1>
 
-:pencil: A dev tool to log all queries for laravel application. 
+<p align="center"> :pencil: A dev tool to log all queries for laravel application.</p> 
 
 ## Installing
 
