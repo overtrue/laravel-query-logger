@@ -25,7 +25,7 @@ class ServiceProvider extends LaravelServiceProvider
     {
         Log::info('============ URL: '.request()->fullUrl().' ===============');
         DB::listen(function (QueryExecuted $query) {
-            $sqlWithPlaceholders = str_replace('?', '%s', $query->sql);
+            $sqlWithPlaceholders = str_replace(['?','%'], ['%s','%%'], $query->sql);
 
             $bindings = $query->connection->prepareBindings($query->bindings);
             $pdo = $query->connection->getPdo();
