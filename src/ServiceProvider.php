@@ -14,6 +14,7 @@ namespace Overtrue\LaravelQueryLogger;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 
 class ServiceProvider extends LaravelServiceProvider
@@ -23,8 +24,9 @@ class ServiceProvider extends LaravelServiceProvider
      */
     public function boot()
     {
-        Log::info('============ URL: '.request()->fullUrl().' ===============');
         DB::listen(function (QueryExecuted $query) {
+            Log::info('============ URL: '.Request::fullUrl().' ===============');
+
             $sqlWithPlaceholders = str_replace(['%', '?'], ['%%', '%s'], $query->sql);
 
             $bindings = $query->connection->prepareBindings($query->bindings);
