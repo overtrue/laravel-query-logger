@@ -23,7 +23,7 @@ class ServiceProvider extends LaravelServiceProvider
      */
     public function boot()
     {
-        Log::info('============ URL: '.request()->fullUrl().' ===============');
+        Log::info(sprintf('============ %s: %s ===============', request()->method(), request()->fullUrl()));
         DB::listen(function (QueryExecuted $query) {
             $sqlWithPlaceholders = str_replace(['%', '?'], ['%%', '%s'], $query->sql);
 
