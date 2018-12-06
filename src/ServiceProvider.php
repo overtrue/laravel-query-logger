@@ -24,17 +24,13 @@ class ServiceProvider extends LaravelServiceProvider
     public function boot()
     {
         // Config files
-        $this->publishes(
-            [
-                realpath(__DIR__ . '/../') . '/config/laravel-query-logger.php' => config_path('laravel-query-logger.php'),
-            ],
-            'config'
-        );
+        $this->publishes([realpath(__DIR__) . '/config/laravel-query-logger.php' => config_path('laravel-query-logger.php')], 'config');
+        $this->mergeConfigFrom(realpath(__DIR__) . '/config/laravel-query-logger.php', 'laravel-query-logger');
 
-        $this->mergeConfigFrom(
-            realpath(__DIR__ . '/../') . '/config/laravel-query-logger.php',
-            'laravel-query-logger'
-        );
+        // Disable if config is false
+        if(config('laravel-query-logger.enabled', true)==false) {
+            return;
+        }
 
         // Start code
         DB::listen(function (QueryExecuted $query) {
@@ -44,8 +40,8 @@ class ServiceProvider extends LaravelServiceProvider
             $realSql = vsprintf($sqlWithPlaceholders, array_map([$pdo, 'quote'], $bindings));
             $seconds = $query->time / 1000;
             $duration = $this->formatDuration($seconds);
-            if($duration >= config('laravel-query-logger.min_size', 0)) {
-                Log::debug(sprintf('[%s][%s][%s] %s', request()->method(), request()->fullUrl(), $duration, $realSql));    
+            if($seconds >= config('laravel-query-logger.min_size', 0)) {
+                Log::debug(sprintf("[%s] %s \nMethod: %s\nUrl: %s", $duration, $realSql, request()->method(), request()->fullUrl()));    
             }
         });
     }
