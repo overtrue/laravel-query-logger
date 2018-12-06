@@ -23,16 +23,30 @@ class ServiceProvider extends LaravelServiceProvider
      */
     public function boot()
     {
-        Log::info(sprintf('============ %s: %s ===============', request()->method(), request()->fullUrl()));
+        // Config files
+        $this->publishes(
+            [
+                realpath(__DIR__ . '/../') . '/config/laravel-query-logger.php' => config_path('laravel-query-logger.php'),
+            ],
+            'config'
+        );
+
+        $this->mergeConfigFrom(
+            realpath(__DIR__ . '/../') . '/config/laravel-query-logger.php',
+            'laravel-query-logger'
+        );
+
+        // Start code
         DB::listen(function (QueryExecuted $query) {
             $sqlWithPlaceholders = str_replace(['%', '?'], ['%%', '%s'], $query->sql);
-
             $bindings = $query->connection->prepareBindings($query->bindings);
             $pdo = $query->connection->getPdo();
             $realSql = vsprintf($sqlWithPlaceholders, array_map([$pdo, 'quote'], $bindings));
-            $duration = $this->formatDuration($query->time / 1000);
-
-            Log::debug(sprintf('[%s] %s', $duration, $realSql));
+            $seconds = $query->time / 1000;
+            $duration = $this->formatDuration($seconds);
+            if($duration >= config('laravel-query-logger.min_size', 0)) {
+                Log::debug(sprintf('[%s][%s][%s] %s', request()->method(), request()->fullUrl(), $duration, $realSql));    
+            }
         });
     }
 

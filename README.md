@@ -8,7 +8,11 @@
 $ composer require overtrue/laravel-query-logger --dev -vvv
 ```
 
-> Plz keep the `--dev` option.
+Publish configuration file (optional) to select the size in seconds minimum to log.
+
+```
+php artisan vendor:publish --provider="Overtrue\LaravelQueryLogger\ServiceProvider"
+```
 
 ## Usage
 
