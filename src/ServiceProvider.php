@@ -39,7 +39,7 @@ class ServiceProvider extends LaravelServiceProvider
             $bindings = $query->connection->prepareBindings($query->bindings);
             $pdo = $query->connection->getPdo();
             $realSql = vsprintf($sqlWithPlaceholders, array_map([$pdo, 'quote'], $bindings));
-            $max_miliseconds = config('query-logger.min_size', 0);
+            $max_miliseconds = config('query-logger.miliseconds', 0);
             $seconds = $query->time / 1000;
             $duration = $this->formatDuration($seconds);
             $miliseconds = $seconds * 1000;
