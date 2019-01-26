@@ -80,7 +80,7 @@ class ServiceProvider extends LaravelServiceProvider
 	public function __destruct () {
 		if (!empty($this->file) && !empty($this->logs)){
 			$this->logs[] = sprintf('%s%s%s%s', str_repeat('=', 50), str_repeat('=', 50),  PHP_EOL, PHP_EOL);
-			app('files')->append($this->file, implode(PHP_EOL, $this->logs));
+			app('files')->append($this->file, implode('', $this->logs));
 		}
     }
 }
