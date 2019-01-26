@@ -21,6 +21,7 @@ class ServiceProvider extends LaravelServiceProvider
      * Bootstrap the application services.
      */
     private $file = '';
+    private $logs = [];
 
     public function boot()
     {
@@ -38,7 +39,7 @@ class ServiceProvider extends LaravelServiceProvider
 
 		$this->file = $fileString = storage_path(sprintf('logs/%s', $name));
 
-        app('files')->append($fileString, sprintf('============ %s: %s ===============%s', app('request')->method(), app('request')->fullUrl(), PHP_EOL));
+        $this->logs[] = sprintf('============ %s: %s ===============%s', app('request')->method(), app('request')->fullUrl(), PHP_EOL);
         app('db')->listen(function (QueryExecuted $query) use ($fileString, $now) {
             $sqlWithPlaceholders = str_replace(['%', '?'], ['%%', '%s'], $query->sql);
 
@@ -47,7 +48,7 @@ class ServiceProvider extends LaravelServiceProvider
             $realSql = vsprintf($sqlWithPlaceholders, array_map([$pdo, 'quote'], $bindings));
             $duration = $this->formatDuration($query->time / 1000);
 
-            app('files')->append($fileString, sprintf("[%s] [%'.12s] %s%s", $now, $duration, $realSql, PHP_EOL));
+            $this->logs[] = sprintf("[%s] [%'.12s] %s%s", $now, $duration, $realSql, PHP_EOL);
         });
     }
 
@@ -77,8 +78,9 @@ class ServiceProvider extends LaravelServiceProvider
     }
 
 	public function __destruct () {
-		if (!empty($this->file)){
-			app('files')->append($this->file, sprintf('%s%s%s%s', str_repeat('=', 50), str_repeat('=', 50),  PHP_EOL, PHP_EOL));
+		if (!empty($this->file) && !empty($this->logs)){
+			$this->logs[] = sprintf('%s%s%s%s', str_repeat('=', 50), str_repeat('=', 50),  PHP_EOL, PHP_EOL);
+			app('files')->append($this->file, implode(PHP_EOL, $this->logs));
 		}
     }
 }
