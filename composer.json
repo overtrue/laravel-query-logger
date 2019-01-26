@@ -1,25 +1,25 @@
 {
-    "name": "overtrue/laravel-query-logger",
-    "description": "A dev tool to log all queries for laravel application.",
+    "name": "anik/laravel-query-logger",
+    "description": "A dev tool to log all queries for laravel/lumen application.",
     "type": "library",
     "require": {
         "laravel/framework": "5.*"
     },
     "autoload": {
         "psr-4": {
-            "Overtrue\\LaravelQueryLogger\\": "src"
+            "Anik\\LaravelQueryLogger\\": "src"
         }
     },
     "license": "MIT",
     "authors": [
         {
-            "name": "overtrue",
-            "email": "anzhengchao@gmail.com"
+            "name": "anik",
+            "email": "sirajul.islam.anik@gmail.com"
         }
     ],
     "extra": {
         "laravel": {
-            "providers": ["Overtrue\\LaravelQueryLogger\\ServiceProvider"]
+            "providers": ["Anik\\LaravelQueryLogger\\ServiceProvider"]
         }
     }
 }

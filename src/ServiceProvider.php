@@ -1,19 +1,18 @@
 <?php
 
 /*
- * This file is part of the overtrue/laravel-query-logger.
+ * This file is part of the anik/laravel-query-logger.
  *
- * (c) overtrue <i@overtrue.me>
+ * (c) ssi-anik <sirajul.islam.anik@gmail.com>
  *
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
 
-namespace Overtrue\LaravelQueryLogger;
+namespace Anik\LaravelQueryLogger;
 
+use Carbon\Carbon;
 use Illuminate\Database\Events\QueryExecuted;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 
 class ServiceProvider extends LaravelServiceProvider
@@ -21,10 +20,26 @@ class ServiceProvider extends LaravelServiceProvider
     /**
      * Bootstrap the application services.
      */
+    private $file = '';
+
     public function boot()
     {
-        Log::info(sprintf('============ %s: %s ===============', request()->method(), request()->fullUrl()));
-        DB::listen(function (QueryExecuted $query) {
+    	// explicitly define that you need to log queries in production
+		if ( false === env('LOG_DB_QUERIES', false)) {
+			return;
+		}
+
+		$now = Carbon::now();
+
+		$name = 'queries.log';
+		if (env('LOG_DB_QUERIES') === 'daily') {
+			$name = sprintf('queries-%s.log', $now->toDateString());
+		}
+
+		$this->file = $fileString = storage_path(sprintf('logs/%s', $name));
+
+        app('files')->append($fileString, sprintf('============ %s: %s ===============%s', app('request')->method(), app('request')->fullUrl(), PHP_EOL));
+        app('db')->listen(function (QueryExecuted $query) use ($fileString, $now) {
             $sqlWithPlaceholders = str_replace(['%', '?'], ['%%', '%s'], $query->sql);
 
             $bindings = $query->connection->prepareBindings($query->bindings);
@@ -32,7 +47,7 @@ class ServiceProvider extends LaravelServiceProvider
             $realSql = vsprintf($sqlWithPlaceholders, array_map([$pdo, 'quote'], $bindings));
             $duration = $this->formatDuration($query->time / 1000);
 
-            Log::debug(sprintf('[%s] %s', $duration, $realSql));
+            app('files')->append($fileString, sprintf("[%s] [%'.12s] %s%s", $now, $duration, $realSql, PHP_EOL));
         });
     }
 
@@ -59,5 +74,11 @@ class ServiceProvider extends LaravelServiceProvider
         }
 
         return round($seconds, 2).'s';
+    }
+
+	public function __destruct () {
+		if (!empty($this->file)){
+			app('files')->append($this->file, sprintf('%s%s%s%s', str_repeat('=', 50), str_repeat('=', 50),  PHP_EOL, PHP_EOL));
+		}
     }
 }
