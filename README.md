@@ -14,7 +14,11 @@ $ composer require anik/laravel-query-logger --dev
 
 1. You need to EXPLICITLY define `LOG_DB_QUERIES` to some values you wish. `(bool) false` will not log any query.
 2. If `LOG_DB_QUERIES` is set to `daily`, it'll log on daily basis.
+3. For `Lumen` you must have to register the `ServiceProvider` in `bootstrap/app.php`.
 
+```php
+$app->register(Anik\LaravelQueryLogger\ServiceProvider::class);
+```
 ```shell
 $ tail -f storage/logs/queries.log
 ```
