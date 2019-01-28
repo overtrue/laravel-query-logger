@@ -78,7 +78,8 @@ class ServiceProvider extends LaravelServiceProvider
     }
 
 	public function __destruct () {
-		if (!empty($this->file) && !empty($this->logs)){
+		// having log count 1 means it's the only url that's loaded at the beginning
+		if (!empty($this->file) && !empty($this->logs) && count($this->logs) > 1){
 			$this->logs[] = sprintf('%s%s%s%s', str_repeat('=', 50), str_repeat('=', 50),  PHP_EOL, PHP_EOL);
 			app('files')->append($this->file, implode('', $this->logs));
 		}
