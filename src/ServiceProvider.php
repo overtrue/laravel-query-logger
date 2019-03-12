@@ -23,7 +23,7 @@ class ServiceProvider extends LaravelServiceProvider
      */
     public function boot()
     {
-        if (isset($_SERVER['QUERY_LOGGER_ENABLED']) && !$_SERVER['QUERY_LOGGER_ENABLED']) {
+        if (!$this->app['config']->get('app.debug')) {
             return;
         }
 
