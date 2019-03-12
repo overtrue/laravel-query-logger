@@ -23,7 +23,10 @@ class ServiceProvider extends LaravelServiceProvider
      */
     public function boot()
     {
-        Log::info(sprintf('============ %s: %s ===============', request()->method(), request()->fullUrl()));
+        if (isset($_SERVER['QUERY_LOGGER_ENABLED']) && !$_SERVER['QUERY_LOGGER_ENABLED']) {
+            return;
+        }
+
         DB::listen(function (QueryExecuted $query) {
             $sqlWithPlaceholders = str_replace(['%', '?'], ['%%', '%s'], $query->sql);
 
@@ -32,7 +35,7 @@ class ServiceProvider extends LaravelServiceProvider
             $realSql = vsprintf($sqlWithPlaceholders, array_map([$pdo, 'quote'], $bindings));
             $duration = $this->formatDuration($query->time / 1000);
 
-            Log::debug(sprintf('[%s] %s', $duration, $realSql));
+            Log::debug(sprintf('[%s] %s | %s: %s', $duration, $realSql, request()->method(), request()->getRequestUri()));
         });
     }
 
@@ -53,11 +56,11 @@ class ServiceProvider extends LaravelServiceProvider
     private function formatDuration($seconds)
     {
         if ($seconds < 0.001) {
-            return round($seconds * 1000000).'μs';
-        } elseif ($seconds < 1) {
-            return round($seconds * 1000, 2).'ms';
+            return round($seconds * 1000000) . 'μs';
+        } else if ($seconds < 1) {
+            return round($seconds * 1000, 2) . 'ms';
         }
 
-        return round($seconds, 2).'s';
+        return round($seconds, 2) . 's';
     }
 }
