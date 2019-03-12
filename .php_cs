@@ -1,6 +1,6 @@
 <?php
 $header = <<<EOF
-This file is part of the overtrue/package-builder.
+This file is part of the overtrue/laravel-query-logger.
 
 (c) overtrue <i@overtrue.me>
 
