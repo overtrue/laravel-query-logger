@@ -32,8 +32,12 @@ class ServiceProvider extends LaravelServiceProvider
 
             $bindings = $query->connection->prepareBindings($query->bindings);
             $pdo = $query->connection->getPdo();
-            $realSql = vsprintf($sqlWithPlaceholders, array_map([$pdo, 'quote'], $bindings));
-            $duration = $this->formatDuration($query->time / 1000);
+            if (count($bindings)) {
+                $pdo = $query->connection->getPdo();
+                $realSql = vsprintf($sqlWithPlaceholders, array_map([$pdo, 'quote'], $bindings));
+            } else {
+                $realSql = $sqlWithPlaceholders;
+            }
 
             Log::debug(sprintf('[%s] %s | %s: %s', $duration, $realSql, request()->method(), request()->getRequestUri()));
         });
