@@ -28,7 +28,7 @@ class ServiceProvider extends LaravelServiceProvider
         $this->mergeConfigFrom(realpath(__DIR__) . '/config/query-logger.php', 'query-logger');
 
         // Disable if config is false
-        if(config('query-logger.enabled', true)==false) {
+        if (config('query-logger.enabled', true) == false) {
             return;
         }
 
