@@ -24,11 +24,11 @@ class ServiceProvider extends LaravelServiceProvider
     public function boot()
     {
         // Config files
-        $this->publishes([realpath(__DIR__) . '/config/query-logger.php' => config_path('query-logger.php')], 'config');
-        $this->mergeConfigFrom(realpath(__DIR__) . '/config/query-logger.php', 'query-logger');
+        $this->publishes([realpath(__DIR__).'/config/query-logger.php' => config_path('query-logger.php')], 'config');
++        $this->mergeConfigFrom(realpath(__DIR__).'/config/query-logger.php', 'query-logger');
 
         // Disable if config is false
-        if (config('query-logger.enabled', true) == false) {
+        if (false === config('query-logger.enabled', true)) {
             return;
         }
 
