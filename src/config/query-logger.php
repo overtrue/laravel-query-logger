@@ -10,7 +10,6 @@
  */
 
 return [
-
     /*
      * Enable or disable
      */
@@ -22,5 +21,4 @@ return [
      */
 
     'miliseconds' => 0,
-
 ];
