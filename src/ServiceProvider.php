@@ -23,6 +23,16 @@ class ServiceProvider extends LaravelServiceProvider
      */
     public function boot()
     {
+        // Config files
+        $this->publishes([realpath(__DIR__) . '/config/query-logger.php' => config_path('query-logger.php')], 'config');
+        $this->mergeConfigFrom(realpath(__DIR__) . '/config/query-logger.php', 'query-logger');
+
+        // Disable if config is false
+        if(config('query-logger.enabled', true)==false) {
+            return;
+        }
+
+        // Start code
         if (!$this->app['config']->get('app.debug')) {
             return;
         }
@@ -33,9 +43,14 @@ class ServiceProvider extends LaravelServiceProvider
             $bindings = $query->connection->prepareBindings($query->bindings);
             $pdo = $query->connection->getPdo();
             $realSql = vsprintf($sqlWithPlaceholders, array_map([$pdo, 'quote'], $bindings));
-            $duration = $this->formatDuration($query->time / 1000);
+            $max_miliseconds = config('query-logger.miliseconds', 0);
+            $seconds = $query->time / 1000;
+            $duration = $this->formatDuration($seconds);
+            $miliseconds = $seconds * 1000;
 
-            Log::debug(sprintf('[%s] %s | %s: %s', $duration, $realSql, request()->method(), request()->getRequestUri()));
+            if ($miliseconds >= $max_miliseconds) {
+                Log::debug(sprintf('[%s] %s | %s: %s', $duration, $realSql, request()->method(), request()->getRequestUri()));
+            }
         });
     }
 

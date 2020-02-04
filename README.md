@@ -12,6 +12,12 @@ Laravel Query Logger will be enabled when `APP_DEBUG` is `true`.
 
 > Please keep the `--dev` option.
 
+Publish configuration file (optional) to select the size in seconds minimum to log.
+
+```
+php artisan vendor:publish --provider="Overtrue\LaravelQueryLogger\ServiceProvider"
+```
+
 ## Usage
 
 ```shell
