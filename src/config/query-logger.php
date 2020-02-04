@@ -11,7 +11,7 @@
 
 return [
 
-	/*
+    /*
      * Enable or disable
      */
 
