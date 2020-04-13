@@ -23,11 +23,15 @@ class ServiceProvider extends LaravelServiceProvider
      */
     public function boot()
     {
-        if (!$this->app['config']->get('app.debug')) {
+        if (!$this->app['config']->get('app.debug') && !$this->app['config']->get('logging.query.enabled', false)) {
             return;
         }
 
         DB::listen(function (QueryExecuted $query) {
+            if ($query->time < $this->app['config']->get('logging.query.slower_than', 0)) {
+                return;
+            }
+
             $sqlWithPlaceholders = str_replace(['%', '?'], ['%%', '%s'], $query->sql);
 
             $bindings = $query->connection->prepareBindings($query->bindings);
