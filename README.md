@@ -8,7 +8,7 @@
 $ composer require overtrue/laravel-query-logger --dev -vvv
 ```
 
-Laravel Query Logger will be enabled when `APP_DEBUG` is `true`.
+Laravel Query Logger will be enabled when `LOG_QUERY` is `true`.
 
 > Please keep the `--dev` option.
 
@@ -26,7 +26,7 @@ $ tail -f ./storage/logs/laravel.log
     
 ### Configuration
 
-If you want to use it in a production environment, you can control whether or not to log a query via the configuration file：
+If you want to use it in a environment, you can control whether or not to log a query via the configuration file：
 
 *config/logging.php:*
 
