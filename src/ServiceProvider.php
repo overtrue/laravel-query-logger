@@ -27,6 +27,12 @@ class ServiceProvider extends LaravelServiceProvider
             return;
         }
 
+        $trigger = $this->app['config']->get('logging.query.trigger');
+
+        if (!empty($trigger) && !$this->requestHasTrigger($trigger)) {
+            return;
+        }
+
         DB::listen(function (QueryExecuted $query) {
             if ($query->time < $this->app['config']->get('logging.query.slower_than', 0)) {
                 return;
@@ -42,7 +48,8 @@ class ServiceProvider extends LaravelServiceProvider
             if (count($bindings) > 0) {
                 $realSql = vsprintf($sqlWithPlaceholders, array_map([$pdo, 'quote'], $bindings));
             }
-            Log::debug(sprintf('[%s] [%s] %s | %s: %s', $query->connection->getDatabaseName(), $duration, $realSql, request()->method(), request()->getRequestUri()));
+            Log::debug(sprintf('[%s] [%s] %s | %s: %s', $query->connection->getDatabaseName(), $duration, $realSql,
+                request()->method(), request()->getRequestUri()));
         });
     }
 
@@ -54,9 +61,19 @@ class ServiceProvider extends LaravelServiceProvider
     }
 
     /**
+     * @param string $trigger
+     *
+     * @return bool
+     */
+    public function requestHasTrigger($trigger)
+    {
+        return false !== getenv($trigger) || \request()->hasHeader($trigger) || \request()->has($trigger) || \request()->hasCookie($trigger);
+    }
+
+    /**
      * Format duration.
      *
-     * @param float $seconds
+     * @param  float  $seconds
      *
      * @return string
      */

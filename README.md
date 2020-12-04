@@ -26,7 +26,7 @@ $ tail -f ./storage/logs/laravel.log
     
 ### Configuration
 
-If you want to use it in a environment, you can control whether or not to log a query via the configuration file：
+If you want to use it in a environment, you can control whether to log a query via the configuration file：
 
 *config/logging.php:*
 
@@ -39,6 +39,10 @@ return [
         // Only record queries that are slower than the following time
         // Unit: milliseconds
         'slower_than' => 0, 
+        
+        // Only record queries when the QUERY_LOG_TRIGGER is set in the environment, 
+        // or when the trigger HEADER, GET, POST, or COOKIE variable is set.
+        'trigger' => null, 
     ],
 ];
 ```
