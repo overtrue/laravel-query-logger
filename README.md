@@ -5,12 +5,10 @@
 ## Installing
 
 ```shell
-$ composer require overtrue/laravel-query-logger --dev -vvv
+$ composer require overtrue/laravel-query-logger -vvv
 ```
 
 Laravel Query Logger will be enabled when `LOG_QUERY` is `true`.
-
-> Please keep the `--dev` option.
 
 ## Usage
 
@@ -26,7 +24,7 @@ $ tail -f ./storage/logs/laravel.log
     
 ### Configuration
 
-If you want to use it in a environment, you can control whether to log a query via the configuration file：
+You can also control whether to log a query via the configuration file：
 
 *config/logging.php:*
 
@@ -34,7 +32,7 @@ If you want to use it in a environment, you can control whether to log a query v
 return [
     //...
     'query' => [
-        'enabled' => env('LOG_QUERY', false),
+        'enabled' => env('LOG_QUERY', env('APP_ENV') === 'local'),
          
         // Only record queries that are slower than the following time
         // Unit: milliseconds
