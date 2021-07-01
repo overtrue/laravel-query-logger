@@ -38,7 +38,7 @@ class ServiceProvider extends LaravelServiceProvider
                 return;
             }
 
-            $sqlWithPlaceholders = str_replace(['%', '?'], ['%%', '%s'], $query->sql);
+            $sqlWithPlaceholders = str_replace(['%', '?', '%s%s'], ['%%', '%s', '?'], $query->sql);
 
             $bindings = $query->connection->prepareBindings($query->bindings);
             $pdo = $query->connection->getPdo();
