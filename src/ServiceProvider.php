@@ -11,7 +11,6 @@
 
 namespace Overtrue\LaravelQueryLogger;
 
-use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
@@ -33,22 +32,24 @@ class ServiceProvider extends LaravelServiceProvider
             return;
         }
 
-        DB::listen(function (QueryExecuted $query) {
-            if ($query->time < $this->app['config']->get('logging.query.slower_than', 0)) {
+        DB::listen(function ($sql, $bindings, $time, $connection) {
+            if ($time < $this->app['config']->get('logging.query.slower_than', 0)) {
                 return;
             }
 
-            $sqlWithPlaceholders = str_replace(['%', '?', '%s%s'], ['%%', '%s', '?'], $query->sql);
+            $connection = DB::connection($connection);
 
-            $bindings = $query->connection->prepareBindings($query->bindings);
-            $pdo = $query->connection->getPdo();
+            $sqlWithPlaceholders = str_replace(['%', '?', '%s%s'], ['%%', '%s', '?'], $sql);
+
+            $bindings = $connection->prepareBindings($bindings);
+            $pdo = $connection->getPdo();
             $realSql = $sqlWithPlaceholders;
-            $duration = $this->formatDuration($query->time / 1000);
+            $duration = $this->formatDuration($time / 1000);
 
             if (count($bindings) > 0) {
                 $realSql = vsprintf($sqlWithPlaceholders, array_map([$pdo, 'quote'], $bindings));
             }
-            Log::debug(sprintf('[%s] [%s] %s | %s: %s', $query->connection->getDatabaseName(), $duration, $realSql,
+            Log::debug(sprintf('[%s] [%s] %s | %s: %s', $connection->getDatabaseName(), $duration, $realSql,
                 request()->method(), request()->getRequestUri()));
         });
     }
