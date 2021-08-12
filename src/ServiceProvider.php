@@ -48,7 +48,8 @@ class ServiceProvider extends LaravelServiceProvider
             if (count($bindings) > 0) {
                 $realSql = vsprintf($sqlWithPlaceholders, array_map([$pdo, 'quote'], $bindings));
             }
-            Log::channel(config('logging.query.channel'))->debug(sprintf('[%s] [%s] %s | %s: %s', $query->connection->getDatabaseName(), $duration, $realSql,
+            Log::channel(config('logging.query.channel', config('logging.default')))
+                ->debug(sprintf('[%s] [%s] %s | %s: %s', $query->connection->getDatabaseName(), $duration, $realSql,
                 request()->method(), request()->getRequestUri()));
         });
     }
