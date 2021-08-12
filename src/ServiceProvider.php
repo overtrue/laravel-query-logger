@@ -33,7 +33,7 @@ class ServiceProvider extends LaravelServiceProvider
             return;
         }
 
-        $this->app['events']->listen(function (QueryExecuted $query) {
+        $this->app['events']->listen(QueryExecuted::class, function (QueryExecuted $query) {
             if ($query->time < $this->app['config']->get('logging.query.slower_than', 0)) {
                 return;
             }
