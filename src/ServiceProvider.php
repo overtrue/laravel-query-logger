@@ -51,7 +51,7 @@ class ServiceProvider extends LaravelServiceProvider
 
             $backtrace = [];
             if (config('logging.query.backtrace', false)) {
-                $backtrace = debug_backtrace();
+                $backtrace = debug_backtrace(config('logging.query.backtrace_option', DEBUG_BACKTRACE_IGNORE_ARGS), config('logging.query.backtrace_limit', 10));
             }
 
             Log::channel(config('logging.query.channel', config('logging.default')))

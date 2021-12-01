@@ -48,7 +48,11 @@ return [
         'channel' => 'stack',
         
         // Log with debug backtrace segment
-        'backtrace' => true
+        'backtrace' => true,
+        //first parameter of debug_backtrace function
+        'backtrace_option' => DEBUG_BACKTRACE_IGNORE_ARGS,
+        //second parameter of debug_backtrace function
+        'backtrace_limit' => 10
     ],
 ];
 ```
