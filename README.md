@@ -46,9 +46,14 @@ return [
         
         // Log Channel
         'channel' => 'stack',
+        
+        // Log with debug backtrace segment
+        'backtrace' => true
     ],
 ];
 ```
+
+*Note: If this does not take effect, try to run `artisan config:cache`*
 
 ## :heart: Sponsor me 
 

@@ -48,9 +48,15 @@ class ServiceProvider extends LaravelServiceProvider
             if (count($bindings) > 0) {
                 $realSql = vsprintf($sqlWithPlaceholders, array_map([$pdo, 'quote'], $bindings));
             }
+
+            $backtrace = [];
+            if (config('logging.query.backtrace', false)) {
+                $backtrace = debug_backtrace();
+            }
+
             Log::channel(config('logging.query.channel', config('logging.default')))
                 ->debug(sprintf('[%s] [%s] %s | %s: %s', $query->connection->getDatabaseName(), $duration, $realSql,
-                request()->method(), request()->getRequestUri()));
+                    request()->method(), request()->getRequestUri()), $backtrace);
         });
     }
 
@@ -74,18 +80,18 @@ class ServiceProvider extends LaravelServiceProvider
     /**
      * Format duration.
      *
-     * @param  float  $seconds
+     * @param float $seconds
      *
      * @return string
      */
     private function formatDuration($seconds)
     {
         if ($seconds < 0.001) {
-            return round($seconds * 1000000).'μs';
+            return round($seconds * 1000000) . 'μs';
         } elseif ($seconds < 1) {
-            return round($seconds * 1000, 2).'ms';
+            return round($seconds * 1000, 2) . 'ms';
         }
 
-        return round($seconds, 2).'s';
+        return round($seconds, 2) . 's';
     }
 }
