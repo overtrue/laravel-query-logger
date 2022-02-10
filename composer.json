@@ -3,7 +3,7 @@
     "description": "A dev tool to log all queries for laravel application.",
     "type": "library",
     "require": {
-        "laravel/framework": "dev-master"
+        "laravel/framework": "^9.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0"
