@@ -3,10 +3,11 @@
     "description": "A dev tool to log all queries for laravel application.",
     "type": "library",
     "require": {
-        "laravel/framework": "^9.0"
+        "laravel/framework": "^9.0|^10.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.0"
+        "laravel/pint": "^1.5",
+        "brainmaestro/composer-git-hooks": "dev-master"
     },
     "autoload": {
         "psr-4": {
@@ -28,11 +29,9 @@
         },
         "hooks": {
             "pre-commit": [
-                "composer test",
-                "composer fix-style"
+                "composer check-style"
             ],
             "pre-push": [
-                "composer test",
                 "composer check-style"
             ]
         }
@@ -47,8 +46,8 @@
             "cghooks update"
         ],
         "cghooks": "vendor/bin/cghooks",
-        "check-style": "php-cs-fixer fix --using-cache=no --diff --dry-run --ansi",
-        "fix-style": "php-cs-fixer fix --using-cache=no --ansi",
+        "check-style": "vendor/bin/pint --test",
+        "fix-style": "vendor/bin/pint",
         "test": "vendor/bin/phpunit --colors=always"
     },
     "scripts-descriptions": {

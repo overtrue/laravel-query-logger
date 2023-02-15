@@ -12,7 +12,6 @@
 namespace Overtrue\LaravelQueryLogger;
 
 use Illuminate\Database\Events\QueryExecuted;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 
@@ -23,13 +22,13 @@ class ServiceProvider extends LaravelServiceProvider
      */
     public function boot()
     {
-        if (!$this->app['config']->get('logging.query.enabled', false)) {
+        if (! $this->app['config']->get('logging.query.enabled', false)) {
             return;
         }
 
         $trigger = $this->app['config']->get('logging.query.trigger');
 
-        if (!empty($trigger) && !$this->requestHasTrigger($trigger)) {
+        if (! empty($trigger) && ! $this->requestHasTrigger($trigger)) {
             return;
         }
 
@@ -50,7 +49,7 @@ class ServiceProvider extends LaravelServiceProvider
             }
             Log::channel(config('logging.query.channel', config('logging.default')))
                 ->debug(sprintf('[%s] [%s] %s | %s: %s', $query->connection->getDatabaseName(), $duration, $realSql,
-                request()->method(), request()->getRequestUri()));
+                    request()->method(), request()->getRequestUri()));
         });
     }
 
@@ -62,8 +61,7 @@ class ServiceProvider extends LaravelServiceProvider
     }
 
     /**
-     * @param string $trigger
-     *
+     * @param  string  $trigger
      * @return bool
      */
     public function requestHasTrigger($trigger)
@@ -75,7 +73,6 @@ class ServiceProvider extends LaravelServiceProvider
      * Format duration.
      *
      * @param  float  $seconds
-     *
      * @return string
      */
     private function formatDuration($seconds)
