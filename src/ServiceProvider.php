@@ -33,7 +33,10 @@ class ServiceProvider extends LaravelServiceProvider
         }
 
         $this->app['events']->listen(QueryExecuted::class, function (QueryExecuted $query) {
-            if ($query->time < $this->app['config']->get('logging.query.slower_than', 0)) {
+            if (
+                $query->time < $this->app['config']->get('logging.query.slower_than', 0)
+                || str($query->sql)->is($this->app['config']->get('logging.query.except', []))
+            ) {
                 return;
             }
 
@@ -46,7 +49,7 @@ class ServiceProvider extends LaravelServiceProvider
 
             if (count($bindings) > 0) {
                 $realSql = vsprintf($sqlWithPlaceholders, array_map(
-                    static fn($binding) => $binding === null ? 'NULL' : $pdo->quote($binding),
+                    static fn ($binding) => $binding === null ? 'NULL' : $pdo->quote($binding),
                     $bindings
                 ));
             }
