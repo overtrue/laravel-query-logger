@@ -62,9 +62,7 @@ class ServiceProvider extends LaravelServiceProvider
     /**
      * Register the application services.
      */
-    public function register()
-    {
-    }
+    public function register() {}
 
     /**
      * @param  string  $trigger
@@ -72,7 +70,7 @@ class ServiceProvider extends LaravelServiceProvider
      */
     public function requestHasTrigger($trigger)
     {
-        return false !== getenv($trigger) || \request()->hasHeader($trigger) || \request()->has($trigger) || \request()->hasCookie($trigger);
+        return getenv($trigger) !== false || \request()->hasHeader($trigger) || \request()->has($trigger) || \request()->hasCookie($trigger);
     }
 
     /**
