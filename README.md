@@ -4,6 +4,14 @@
 
 [![Sponsor me](https://github.com/overtrue/overtrue/blob/master/sponsor-me-button-s.svg?raw=true)](https://github.com/sponsors/overtrue)
 
+## Requirements
+
+- PHP 8.3 or newer
+- Laravel 13
+
+Version 6 drops Laravel 12 support. Applications on Laravel 12 should use `^5.1`.
+The logging API and configuration are unchanged.
+
 ## Installing
 
 ```shell
