@@ -6,3 +6,6 @@ composer.lock
 .subsplit
 .php_cs.cache
 .idea/
+.phpunit.result.cache
+/.phpunit.cache
+cghooks.lock
