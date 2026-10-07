@@ -40,19 +40,9 @@ class ServiceProvider extends LaravelServiceProvider
                 return;
             }
 
-            $sqlWithPlaceholders = str_replace(['%', '?', '%s%s'], ['%%', '%s', '?'], $query->sql);
-
-            $bindings = $query->connection->prepareBindings($query->bindings);
-            $pdo = $query->connection->getPdo();
-            $realSql = $sqlWithPlaceholders;
+            $realSql = $query->toRawSql();
             $duration = $this->formatDuration($query->time / 1000);
 
-            if (count($bindings) > 0) {
-                $realSql = vsprintf($sqlWithPlaceholders, array_map(
-                    static fn ($binding) => $binding === null ? 'NULL' : $pdo->quote($binding),
-                    $bindings
-                ));
-            }
             Log::channel(config('logging.query.channel', config('logging.default')))
                 ->debug(sprintf('[%s] [%s] %s | %s: %s', $query->connection->getDatabaseName(), $duration, $realSql,
                     request()->method(), request()->getRequestUri()));
