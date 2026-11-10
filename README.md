@@ -4,6 +4,14 @@
 
 [![Sponsor me](https://github.com/overtrue/overtrue/blob/master/sponsor-me-button-s.svg?raw=true)](https://github.com/sponsors/overtrue)
 
+## Requirements
+
+- PHP 8.3 or newer
+- Laravel 13
+
+Version 6 drops Laravel 12 support. Applications on Laravel 12 should use `^5.1`.
+The logging API and configuration are unchanged.
+
 ## Installing
 
 ```shell
@@ -68,12 +76,6 @@ Many thanks to Jetbrains for kindly providing a license for me to work on this a
 
 [![](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/?from=https://github.com/overtrue)
 
-
-## PHP 扩展包开发
-
-> 想知道如何从零开始构建 PHP 扩展包？
->
-> 请关注我的实战课程，我会在此课程中分享一些扩展开发经验 —— [《PHP 扩展包实战教程 - 从入门到发布》](https://learnku.com/courses/creating-package)
 
 ## License
 

@@ -23,8 +23,8 @@ Package: **overtrue/laravel-query-logger**
 Development tool to log all SQL queries for a Laravel application.
 
 ## Compatibility Targets
-- Laravel: **^9|^10|^11|^12|^13**
-- PHP: follow Laravel requirements (Laravel 13 requires PHP 8.3+)
+- Laravel: **^13.0**
+- PHP: **^8.3**
 
 ## Local Development
 ```bash

@@ -6,8 +6,12 @@ on:
   pull_request:
     branches: [master]
 
+permissions:
+  contents: read
+
 jobs:
   pint:
+    name: Locked dependencies and Pint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -15,15 +19,31 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-      - name: Install dependencies
-        run: composer install
+          extensions: mbstring, pdo_sqlite
+          tools: composer:v2
+          coverage: none
+      - name: Validate manifest and lockfile
+        run: composer validate --strict
+      - name: Install locked dependencies
+        run: composer install --no-interaction --prefer-dist
+      - name: Check platform requirements
+        run: composer check-platform-reqs
+      - name: Show resolved versions
+        run: composer show --direct
+      - name: Audit dependencies
+        run: composer audit
       - name: Pint
         run: composer check-style
+      - name: PHPUnit
+        run: composer test
 
   phpunit:
+    name: PHP ${{ matrix.php_version }} / ${{ matrix.dependencies }}
     strategy:
+      fail-fast: false
       matrix:
         php_version: ['8.3', '8.4', '8.5']
+        dependencies: [lowest, highest]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -31,7 +51,22 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php_version }}
-      - name: Install dependencies
-        run: composer install
+          extensions: mbstring, pdo_sqlite
+          tools: composer:v2
+          coverage: none
+      - name: Resolve dependencies for the actual PHP version
+        run: composer config --unset platform.php
+      - name: Install lowest secure dependencies
+        if: matrix.dependencies == 'lowest'
+        run: composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction
+      - name: Install highest dependencies
+        if: matrix.dependencies == 'highest'
+        run: composer update --prefer-stable --prefer-dist --no-interaction
+      - name: Check platform requirements
+        run: composer check-platform-reqs
+      - name: Show resolved versions
+        run: composer show --direct
+      - name: Audit dependencies
+        run: composer audit
       - name: PHPUnit
-        run: ./vendor/bin/phpunit --do-not-fail-on-warning --do-not-fail-on-deprecation
+        run: composer test
