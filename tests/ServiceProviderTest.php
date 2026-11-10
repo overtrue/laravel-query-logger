@@ -3,11 +3,10 @@
 namespace Overtrue\LaravelQueryLogger\Tests;
 
 use DateTimeImmutable;
-use Illuminate\Database\Events\QueryExecuated;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illumihttps;
 use Mockery;
 use Orchestra\Testbench\Attributes\DefineEnvironment;
 use Overtrue\LaravelQueryLogger\ServiceProvider;
@@ -75,11 +74,18 @@ class ServiceProviderTest extends TestCase
         ];
     }
 
+    /**
+     * 验证原始绑定示例按 Laravel 的类型转换规则写入日志。
+     *
+     * @return void 无返回值
+     */
     #[DefineEnvironment('enableQueryLogging')]
     public function test_it_prepares_and_quotes_bindings(): void
     {
-        $this->expectLog("[:memory:] [10ms] select 'O''Reilly', '42', '1.5', '1', '0', NULL, '2026-10-07 12:34:56' | GET: /");
+        // 数值和布尔值以数字输出，空值以 null 输出。
+        $this->expectLog("[:memory:] [10ms] select 'O''Reilly', 42, 1.5, 1, 0, null, '2026-10-07 12:34:56' | GET: /");
 
+        // 保留原始绑定数据，验证各种类型的日志输出。
         $this->dispatchQuery('select ?, ?, ?, ?, ?, ?, ?', [
             "O'Reilly", 42, 1.5, true, false, null, new DateTimeImmutable('2026-10-07 12:34:56'),
         ]);
@@ -242,39 +248,21 @@ class ServiceProviderTest extends TestCase
     }
 
     /**
-     * 验证 JSONPath 字面量问号不会被误认为 SQL 绑定占位符
+     * 验证 JSONPath 字面量问号不会被误认为 SQL 绑定占位符。
      *
-     * @return void
+     * @return void 无返回值
      */
+    #[DefineEnvironment('enableQueryLogging')]
     public function test_it_logs_jsonpath_queries_with_literal_question_marks(): void
     {
-        // 配置查询日志并重新注册服务提供者，使监听器在测试中启用
-        config([
-            'logging.query.enabled' => true,
-            'logging.query.channel' => 'testing',
-        ]);
-        $this->app->register(ServiceProvider::class, true);
+        // 检查完整日志，保留字面量问号和变量名。
+        $this->expectLog(<<<'LOG'
+[:memory:] [10ms] select jsonb_path_exists(stage_dris, '$.*[*] ? (@ == $username)', jsonb_build_object('username', to_jsonb(CAST('A123456' AS text)))) | GET: /
+LOG);
 
-        // 断言日志通道收到同时保留 JSONPath 问号和插值后绑定值的 SQL
-        $logger = Mockery::mock(LoggerInterface::class);
-        Log::shouldReceive('channel')->once()->with('testing')->andReturn($logger);
-        $logger->shouldReceive('debug')->once()->with(Mockery::on(function (string $message): bool {
-            $this->assertStringContainsString("'$.*[*] ? (@ == \$username)'", $message);
-            $this->assertStringContainsString("to_jsonb(CAST('C0054917' AS text))", $message);
-
-            return true;
-        }));
-
-        // 派发含一个真实占位符的查询事件，避免依赖 PostgreSQL 服务
-        $query = new QueryExecuted(
-            <<<'SQL'
+        // 派发含真实绑定的查询事件，无需连接 PostgreSQL。
+        $this->dispatchQuery(<<<'SQL'
 select jsonb_path_exists(stage_dris, '$.*[*] ? (@ == $username)', jsonb_build_object('username', to_jsonb(CAST(? AS text))))
-SQL,
-            ['A123456'],
-            1,
-            DB::connection(),
-        );
-
-        $this->app['events']->dispatch($query);
+SQL, ['A123456']);
     }
 }
