@@ -74,11 +74,18 @@ class ServiceProviderTest extends TestCase
         ];
     }
 
+    /**
+     * 验证原始绑定示例按 Laravel 的类型转换规则写入日志。
+     *
+     * @return void 无返回值
+     */
     #[DefineEnvironment('enableQueryLogging')]
     public function test_it_prepares_and_quotes_bindings(): void
     {
-        $this->expectLog("[:memory:] [10ms] select 'O''Reilly', '42', '1.5', '1', '0', NULL, '2026-10-07 12:34:56' | GET: /");
+        // 数值和布尔值以数字输出，空值以 null 输出。
+        $this->expectLog("[:memory:] [10ms] select 'O''Reilly', 42, 1.5, 1, 0, null, '2026-10-07 12:34:56' | GET: /");
 
+        // 保留原始绑定数据，验证各种类型的日志输出。
         $this->dispatchQuery('select ?, ?, ?, ?, ?, ?, ?', [
             "O'Reilly", 42, 1.5, true, false, null, new DateTimeImmutable('2026-10-07 12:34:56'),
         ]);
@@ -238,5 +245,24 @@ class ServiceProviderTest extends TestCase
     private function dispatchQuery(string $sql = 'select 1', array $bindings = [], float $time = 10): void
     {
         $this->app['events']->dispatch(new QueryExecuted($sql, $bindings, $time, DB::connection()));
+    }
+
+    /**
+     * 验证 JSONPath 字面量问号不会被误认为 SQL 绑定占位符。
+     *
+     * @return void 无返回值
+     */
+    #[DefineEnvironment('enableQueryLogging')]
+    public function test_it_logs_jsonpath_queries_with_literal_question_marks(): void
+    {
+        // 检查完整日志，保留字面量问号和变量名。
+        $this->expectLog(<<<'LOG'
+[:memory:] [10ms] select jsonb_path_exists(stage_dris, '$.*[*] ? (@ == $username)', jsonb_build_object('username', to_jsonb(CAST('A123456' AS text)))) | GET: /
+LOG);
+
+        // 派发含真实绑定的查询事件，无需连接 PostgreSQL。
+        $this->dispatchQuery(<<<'SQL'
+select jsonb_path_exists(stage_dris, '$.*[*] ? (@ == $username)', jsonb_build_object('username', to_jsonb(CAST(? AS text))))
+SQL, ['A123456']);
     }
 }
